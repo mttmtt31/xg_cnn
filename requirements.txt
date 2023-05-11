@@ -1,0 +1,9 @@
+matplotlib==3.7.1
+mplsoccer==1.1.12
+numpy==1.24.2
+pandas==2.0.0
+statsbombpy==1.9.0
+torch==2.0.1
+torchvision==0.15.2
+tqdm==4.65.0
+wandb==0.15.2
