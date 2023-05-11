@@ -16,7 +16,7 @@
 ## (Optional) Individuate shots
 1. To fully reproduce our results and retrieve the shots' json file already located in the `data/shots.json`, you can run the `create_json.py` script located in the `src/utils` directory. 
    ```shell
-   python src/utils/create_
+   python src/utils/create_json.py
    ```
 
 ## Shot frames generation
