@@ -122,7 +122,7 @@ def main(s, plot_voronoi, plot_cones, plot_angle):
 
 if __name__ == '__main__':
     args = parse_args()
-    if args.voronoi and (args.cones or args.angles):
+    if args.voronoi and (args.cones or args.angle):
         raise ValueError("Voronoi diagrams can only be plotted by themselves, without angles or cones.")
     main(s=args.s, plot_voronoi=args.voronoi, plot_cones=args.cones, plot_angle=args.angle)
     
