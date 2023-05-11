@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from src.dataset import SimpleCNN
+from src.model import SimpleCNN
 from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from torch.utils.data import DataLoader, random_split
