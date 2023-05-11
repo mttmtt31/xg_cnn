@@ -21,3 +21,8 @@ doc/
 # Exclude package build directories
 build/
 dist/
+
+# wandb
+**wandb/
+wandb/*
+**.wandb
