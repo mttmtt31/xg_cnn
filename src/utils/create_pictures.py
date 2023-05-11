@@ -11,14 +11,15 @@ warnings.filterwarnings("ignore")
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--s', type=int, default=2)
+    parser.add_argument('--s', type=int, default=1)
     parser.add_argument('--voronoi', action='store_true')
     parser.add_argument('--cones', action='store_true')
+    parser.add_argument('--angle', action='store_true')
     
     return parser.parse_args()
 
 
-def main(s, plot_voronoi, plot_cones):
+def main(s, plot_voronoi, plot_cones, plot_angle):
     with open('data/shots.json', 'rb') as f:
         dict_shots = json.load(f) 
     for shot_name, shot in tqdm(dict_shots.items(), total = len(dict_shots), desc = 'Saving shot frames.......'):
@@ -47,6 +48,10 @@ def main(s, plot_voronoi, plot_cones):
             team1, team2 = pitch.voronoi(df_players[0], df_players[1], df_players['team'])
             t1 = pitch.polygon(team1, ax=axs, fc='red', alpha=0.2)
             t2 = pitch.polygon(team2, ax=axs, fc='blue', alpha=0.2)
+
+        if plot_angle:
+            # plot the angle to the goal
+            pitch.goal_angle(ball[0], ball[1], ax=axs, alpha=0.2, color='#cb5a4c', goal='right')
 
         # Plot the players
         sc1 = pitch.scatter(teammates[:, 0], teammates[:, 1], c='red', label='Attacker',  ax=axs, s=s)
@@ -82,7 +87,7 @@ def main(s, plot_voronoi, plot_cones):
                     y_extreme_2 = center[1] + radius * np.sin(np.radians(angle_range[1]))
 
                     # Filling the area between the lines
-                    plt.fill([players[i, 0], x_extreme_1, x_extreme_2], [players[i, 1], y_extreme_1, y_extreme_2], color=color, alpha = 0.2)
+                    plt.fill([players[i, 1], y_extreme_1, y_extreme_2], [players[i, 0], x_extreme_1, x_extreme_2], color=color, alpha = 0.2)
 
         # Set the figure size to 60x40 pixels
         fig.set_size_inches(1.5, 1.0)  # Inches are used for the size, so divide by the DPI
@@ -96,11 +101,19 @@ def main(s, plot_voronoi, plot_cones):
             # make the same picture but with only visible
             visible = pitch.polygon([np.array([[0,80.],[df_players[0].min() - 10,  80.], [df_players[0].min() - 10,  0], [0,0]])], color='white', ax=axs)
             plt.savefig(f'images/visible/{shot_name}.png', dpi=200, bbox_inches='tight', pad_inches=0)
+        elif plot_cones and plot_angle:
+            # save picture with cones and angles
+            plt.gca().set_aspect('equal')
+            # Save the plot as a PNG image
+            plt.savefig(f"images/cones+angle/{shot_name}.png", dpi=200, bbox_inches='tight', pad_inches=0)            
         elif plot_cones:
             # Set the aspect ratio to 'equal' for circular circles
             plt.gca().set_aspect('equal')
             # Save the plot as a PNG image
             plt.savefig(f"images/cones/{shot_name}.png", dpi=200, bbox_inches='tight', pad_inches=0)
+        elif plot_angle:
+            # save picture with angle
+            plt.savefig(f'images/angle/{shot_name}.png', dpi=200, bbox_inches='tight', pad_inches=0)
         else:
             # save picture with white background
             plt.savefig(f'images/white/{shot_name}.png', dpi=200, bbox_inches='tight', pad_inches=0)
@@ -109,7 +122,7 @@ def main(s, plot_voronoi, plot_cones):
 
 if __name__ == '__main__':
     args = parse_args()
-    if args.voronoi and args.cones:
-        raise ValueError("You are trying to plot both Voronoi and cones, but this is not possible. Please, select either or none.")
-    main(s=args.s, plot_voronoi=args.voronoi, plot_cones=args.cones)
+    if args.voronoi and (args.cones or args.angles):
+        raise ValueError("Voronoi diagrams can only be plotted by themselves, without angles or cones.")
+    main(s=args.s, plot_voronoi=args.voronoi, plot_cones=args.cones, plot_angle=args.angle)
     
