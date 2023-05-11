@@ -6,12 +6,12 @@ import argparse
 import warnings
 import matplotlib.pyplot as plt
 import itertools
-from mplsoccer import Pitch
+from mplsoccer import VerticalPitch
 warnings.filterwarnings("ignore")
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--s', type=int, default=5)
+    parser.add_argument('--s', type=int, default=2)
     parser.add_argument('--voronoi', action='store_true')
     parser.add_argument('--cones', action='store_true')
     
@@ -37,7 +37,7 @@ def main(s, plot_voronoi, plot_cones):
             df_players['team'] = list(itertools.chain(*[[True]*len(teammates), [False]*(len(opponents_gk))]))
 
         # Setup the pitch
-        pitch = Pitch(line_alpha=0, goal_alpha=0, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0)
+        pitch = VerticalPitch(line_alpha=0, goal_alpha=0, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0)
 
         # We will use mplsoccer's grid function to plot a pitch with a title axis.
         fig, axs = pitch.draw()
