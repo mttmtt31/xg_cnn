@@ -26,7 +26,8 @@ class FreezeFrameDataset(datasets.ImageFolder):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        return image, target
+        # target is reserved, so that goal->1, non_goal->0
+        return image, 1 - target
 
     def __len__(self):
         return len(self.samples)*(self.augmentation+1)
