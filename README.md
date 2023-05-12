@@ -10,7 +10,7 @@
 
 2. Install the packages
    ```shell
-   cd xg-cnn
+   cd xg_cnn
    pip install -r requirements.txt
 
 ## (Optional) Individuate shots
