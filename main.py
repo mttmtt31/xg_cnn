@@ -1,11 +1,8 @@
-import torch
 import torch.nn as nn
 import torch.optim as optim
 from src import SimpleCNN, FreezeFrameDataset, train, val
-from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from torch.utils.data import DataLoader, random_split
-from tqdm import tqdm
 import wandb
 import argparse
 
@@ -22,6 +19,22 @@ def parse_args():
     return parser.parse_args()
 
 def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentation):
+    if log_wandb:
+        # start a new wandb run to track this script
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="xg-cnn",
+            
+            # track hyperparameters and run metadata
+            config={
+            "learning_rate": lr,
+            "epochs": num_epochs,
+            "batch_size" : batch_size, 
+            "learning_rate" : lr, 
+            "num_epochs" : num_epochs, 
+            "picture_type" : picture_type
+            }
+        )
     # Specify transformation for loading the images
     transform = transforms.Compose([
         transforms.Resize((210, 140)),
@@ -50,29 +63,15 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Train the model
-    model, train_loss, train_acc = train(train_loader=train_loader, model=model, num_epochs=num_epochs, device=device, optimizer=optimizer, criterion=criterion)
+    for i in range(num_epochs):
+        model, train_loss, train_acc = train(train_loader=train_loader, model=model, epoch=i, device=device, optimizer=optimizer, criterion=criterion)
 
-    # evaluate the model on the validation set
-    val_loss, val_acc = val(model=model, val_loader=val_loader, device=device, criterion=criterion)
+        # evaluate the model on the validation set
+        val_loss, val_acc = val(model=model, val_loader=val_loader, device=device, criterion=criterion, epoch=i)
 
-    if log_wandb:
-        # start a new wandb run to track this script
-        wandb.init(
-            # set the wandb project where this run will be logged
-            project="xg-cnn",
-            
-            # track hyperparameters and run metadata
-            config={
-            "learning_rate": lr,
-            "epochs": num_epochs,
-            "batch_size" : batch_size, 
-            "learning_rate" : lr, 
-            "num_epochs" : num_epochs, 
-            "picture_type" : picture_type
-            }
-        )
         # log in wandb
-        wandb.log({"Train Loss": train_loss, "Train Accuracy": train_acc, "Validation Loss": val_loss, "Validation Accuracy": val_acc})
+        if log_wandb:
+            wandb.log({"Train Loss": train_loss, "Train Accuracy": train_acc, "Validation Loss": val_loss, "Validation Accuracy": val_acc})
 
 if __name__ == '__main__':
     args = parse_args()
