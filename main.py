@@ -1,10 +1,11 @@
 import torch.nn as nn
 import torch.optim as optim
-from src import XGCNN, FreezeFrameDataset, train, val
+from src import XGCNN, FreezeFrameDataset, train, val, train_val_split
 from torchvision import transforms
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, Subset, random_split
 import wandb
 import argparse
+import random
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -45,24 +46,14 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
     folder_path = f'images/{picture_type}'
 
     # Load the dataset
-    dataset = FreezeFrameDataset(folder_path, transform=transform, augmentation=False)
+    dataset = FreezeFrameDataset(folder_path, transform=transform, augmentation=augmentation)
 
-    # Split the dataset into training and validation sets
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
-
-    # Apply data augmentation (if needed) on the train_dataset.
-    # When augmentation, you need to play with train_dataset.dataset, because augmentation is at that level.
-    if augmentation:
-        train_dataset.dataset.samples = [sample for i, sample in enumerate(train_dataset.dataset.samples) if i in train_dataset.indices]
-        train_dataset.dataset.set_augmentation(True)
-        train_dataset = train_dataset.dataset
+    # Split train/val dataset
+    train_dataset, val_dataset = train_val_split(dataset=dataset, train_size=0.8)
 
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-
 
     # Initialize the model
     model = XGCNN(dropout=dropout)

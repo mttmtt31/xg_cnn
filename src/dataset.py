@@ -5,23 +5,23 @@ class FreezeFrameDataset(ImageFolder):
     def __init__(self, root, transform=None, target_transform=None, augmentation:bool=False):
         super().__init__(root, transform, target_transform)
         self.augmentation = augmentation
+        self.real_length = len(self.samples)
 
     def __getitem__(self, index):
         # check if augmentation is on
-        if self.augmentation:
-            index = index // 2
-        # retrieve image and label
-        path, target = self.samples[index]
+        if index >= self.real_length:
+            path, target = self.samples[index - self.real_length]
+        else:
+            # retrieve image and label
+            path, target = self.samples[index]
         image = self.loader(path)
 
         if self.transform is not None:
             image = self.transform(image)
 
         # perform data augmentation
-        if self.augmentation:
-            # check if index is even or odd. If odd -> flip along y-axis
-            if index % 2 == 1:
-                image = torch.flip(image, [-1]) 
+        if index >= self.real_length:
+            image = torch.flip(image, [-1]) 
 
         if self.target_transform is not None:
             target = self.target_transform(target)
@@ -31,6 +31,3 @@ class FreezeFrameDataset(ImageFolder):
 
     def __len__(self):
         return len(self.samples)*(self.augmentation+1)
-            
-    def set_augmentation(self, augmentation):
-        self.augmentation = augmentation
