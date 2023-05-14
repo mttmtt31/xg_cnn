@@ -1,7 +1,7 @@
 import torch
-from torchvision import datasets
+from torchvision.datasets import ImageFolder
 
-class FreezeFrameDataset(datasets.ImageFolder):
+class FreezeFrameDataset(ImageFolder):
     def __init__(self, root, transform=None, target_transform=None, augmentation:bool=False):
         super().__init__(root, transform, target_transform)
         self.augmentation = augmentation
@@ -32,3 +32,5 @@ class FreezeFrameDataset(datasets.ImageFolder):
     def __len__(self):
         return len(self.samples)*(self.augmentation+1)
             
+    def set_augmentation(self, augmentation):
+        self.augmentation = augmentation

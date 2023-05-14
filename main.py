@@ -11,6 +11,7 @@ def parse_args():
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda')
     parser.add_argument('--batch-size', type = int, default = 32)
     parser.add_argument('--learning-rate', type = float, default = 0.001)
+    parser.add_argument('--dropout', type = float, default = 0.0)
     parser.add_argument('--epochs', type = int, default = 10)
     parser.add_argument('--picture-type', type = str, choices = ['white', 'all', 'visible', 'cones', 'angle'], help = 'Path to folder where pictures are stored. Should be one of (white, all, visible, cones).', default='white')
     parser.add_argument('--augmentation', action='store_true', help = 'Whether you want to perform data augmentation')
@@ -18,7 +19,7 @@ def parse_args():
 
     return parser.parse_args()
 
-def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentation):
+def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentation, dropout):
     if log_wandb:
         # start a new wandb run to track this script
         wandb.init(
@@ -32,7 +33,8 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
             "batch_size" : batch_size, 
             "learning_rate" : lr, 
             "num_epochs" : num_epochs, 
-            "picture_type" : picture_type
+            "picture_type" : picture_type,
+            "dropout" : dropout
             }
         )
     # Specify transformation for loading the images
@@ -43,19 +45,27 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
     folder_path = f'images/{picture_type}'
 
     # Load the dataset
-    dataset = FreezeFrameDataset(folder_path, transform=transform, augmentation=augmentation)
+    dataset = FreezeFrameDataset(folder_path, transform=transform, augmentation=False)
 
     # Split the dataset into training and validation sets
     train_size = int(0.8 * len(dataset))
     val_size = len(dataset) - train_size
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
+    # Apply data augmentation (if needed) on the train_dataset.
+    # When augmentation, you need to play with train_dataset.dataset, because augmentation is at that level.
+    if augmentation:
+        train_dataset.dataset.samples = [sample for i, sample in enumerate(train_dataset.dataset.samples) if i in train_dataset.indices]
+        train_dataset.dataset.set_augmentation(True)
+        train_dataset = train_dataset.dataset
+
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
+
     # Initialize the model
-    model = XGCNN()
+    model = XGCNN(dropout=dropout)
     model.to(device)
 
     # Define the loss function and optimizer
@@ -82,5 +92,6 @@ if __name__ == '__main__':
         lr=args.learning_rate,
         log_wandb=args.wandb,
         num_epochs=args.epochs,       
-        augmentation=args.augmentation 
+        augmentation=args.augmentation,
+        dropout=args.dropout
     )
