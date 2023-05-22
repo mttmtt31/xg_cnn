@@ -1,5 +1,10 @@
 import torch.nn as nn
 
+""" 
+Like V1, but occam's razor
+"""
+
+
 # Define the CNN model
 class XGCNN(nn.Module):
     def __init__(self, dropout:float=0.0):

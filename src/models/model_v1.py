@@ -1,5 +1,9 @@
 import torch.nn as nn
 
+""" 
+Similar to thesis
+"""
+
 # Define the CNN model
 class XGCNN(nn.Module):
     def __init__(self, dropout:float=0.0):
