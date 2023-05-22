@@ -8,11 +8,11 @@ def train(train_loader, model, epoch, device, optimizer, criterion):
     running_loss = 0.0
 
     # loop over the images
-    for images, labels in tqdm(train_loader, total = len(train_loader), desc = f'Training epoch #{epoch+1}'):
+    for images, labels, distance, angle in tqdm(train_loader, total = len(train_loader), desc = f'Training epoch #{epoch+1}'):
         # send them to the device
         images, labels = images.to(device), labels.to(device)
         # forward pass
-        outputs = model(images)
+        outputs = model(images, distance=distance, angle=angle)
         # loss
         loss = criterion(outputs.squeeze(), labels.float())
         # zero the gradients
