@@ -1,6 +1,7 @@
 # Exclude specific folder
 pictures/
 images/
+new_images/
 
 # Exclude compiled Python files
 *.pyc
@@ -13,6 +14,8 @@ env/
 .virtualenv/
 
 # Exclude log files
+logs/
+log/
 *.log
 
 # Exclude generated documentation
