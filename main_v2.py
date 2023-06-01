@@ -1,8 +1,9 @@
 import torch.nn as nn
 import torch.optim as optim
-from src import FreezeFrameDataset_v2, train, val, train_val_split, load_model
+from src import FreezeFrameDataset_v2, train, val, train_val_split, load_model, normalise_distance, normalise_angle
 from torchvision import transforms
 from torch.utils.data import DataLoader
+import torch
 import wandb
 import argparse
 
@@ -40,18 +41,24 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
             "augmentation" : augmentation
             }
         )
+    folder_path = f'new_images/{picture_type}'
+
     # Specify transformation for loading the images
     transform = transforms.Compose([
         transforms.Resize((100, 100)),
-        transforms.ToTensor(),
+        transforms.ToTensor()
     ])
-    folder_path = f'images/{picture_type}'
-
     # Load the dataset
     dataset = FreezeFrameDataset_v2(folder_path, transform=transform, augmentation=augmentation)
 
     # Split train/val dataset
     train_dataset, val_dataset = train_val_split(dataset=dataset, train_size=0.8)
+    # min-max distance
+    normalise_dist = normalise_distance(train_dataset)
+    normalise_ang = normalise_angle(train_dataset)
+    # add it to the transform pipeline
+    train_dataset.dataset.normalise_dist = normalise_dist
+    train_dataset.dataset.normalise_angle = normalise_ang
 
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)

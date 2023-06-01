@@ -37,6 +37,8 @@ class FreezeFrameDataset_v2(ImageFolder):
         super().__init__(root, transform, target_transform)
         self.augmentation = augmentation
         self.real_length = len(self.samples)
+        self.normalise_dist = None
+        self.normalise_angle = None
 
     def __getitem__(self, index):
         # check if augmentation is on
@@ -48,8 +50,14 @@ class FreezeFrameDataset_v2(ImageFolder):
         image = self.loader(path)
 
         # retrieve distance and angle
-        dist = path.split("_")[1]
-        angle = path.split("_")[2].split(".")[0]
+        dist = float(path.split('/')[-1].split("_")[1])
+        angle = float(path.split('/')[-1].split("_")[2].split(".png")[0])
+    
+        if self.normalise_dist is not None:
+            dist = self.normalise_dist(dist)
+
+        if self.normalise_angle is not None:
+            dist = self.normalise_angle(angle)
 
         if self.transform is not None:
             image = self.transform(image)

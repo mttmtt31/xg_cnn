@@ -8,10 +8,10 @@ def val(model, val_loader, device, epoch, criterion):
     outcomes = []
 
     with torch.no_grad():
-        for images, labels in tqdm(val_loader, total = len(val_loader), desc = f'Validating epoch #{epoch+1}'):
+        for images, labels, distance, angle in tqdm(val_loader, total = len(val_loader), desc = f'Validating epoch #{epoch+1}'):
             # send to device
-            images, labels = images.to(device), labels.to(device)
-            outputs = model(images)
+            images, labels, distance, angle = images.to(device), labels.to(device), distance.to(device), angle.to(device)
+            outputs = model(images, distance=distance, angle=angle)
 
             # append the xG
             xGs.append(outputs.squeeze())
