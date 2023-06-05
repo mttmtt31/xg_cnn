@@ -1,7 +1,5 @@
 import torch.nn as nn
-import torch.optim as optim
-from src import FreezeFrameDataset, train, val, train_val_split, load_model
-from torchvision import transforms
+from src import FreezeFrameDataset, train, val, train_val_split, load_model, set_optimiser
 from torch.utils.data import DataLoader
 import wandb
 import argparse
@@ -13,14 +11,15 @@ def parse_args():
     parser.add_argument('--learning-rate', type = float, default = 0.001)
     parser.add_argument('--dropout', type = float, default = 0.0)
     parser.add_argument('--epochs', type = int, default = 10)
-    parser.add_argument('--version', type = str, default = 'v2')
-    parser.add_argument('--picture-type', type = str, choices = ['white', 'all', 'visible', 'cones', 'angle'], help = 'Path to folder where pictures are stored. Should be one of (white, all, visible, cones).', default='white')
+    parser.add_argument('--version', type = str, default = 'v1')
     parser.add_argument('--augmentation', action='store_true', help = 'Whether you want to perform data augmentation')
     parser.add_argument('--wandb', action='store_true', help = 'Whether you want to log results in wandb')
+    parser.add_argument('--optim', type = str, default = 'sgd', help = 'Optimiser to use')
+    parser.add_argument('--weight-decay', type = float, default = 0.0, help = 'Weight decay')
 
     return parser.parse_args()
 
-def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentation, dropout, version):
+def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, dropout, version, optimiser, wd):
     if log_wandb:
         # start a new wandb run to track this script
         wandb.init(
@@ -34,21 +33,16 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
             "batch_size" : batch_size, 
             "learning_rate" : lr, 
             "num_epochs" : num_epochs, 
-            "picture_type" : picture_type,
             "dropout" : dropout,
             "version" : version,
             "augmentation" : augmentation
             }
         )
-    # Specify transformation for loading the images
-    transform = transforms.Compose([
-        transforms.Resize((93, 140)),
-        transforms.ToTensor(),
-    ])
-    folder_path = f'images/{picture_type}'
 
+    data_path = 'data/shots.npy'
+    labels_path = 'data/labels.npy'
     # Load the dataset
-    dataset = FreezeFrameDataset(folder_path, transform=transform, augmentation=augmentation)
+    dataset = FreezeFrameDataset(data_path=data_path, labels_path=labels_path, augmentation=augmentation)
 
     # Split train/val dataset
     train_dataset, val_dataset = train_val_split(dataset=dataset, train_size=0.8)
@@ -63,7 +57,7 @@ def main(device, batch_size, lr, num_epochs, picture_type, log_wandb, augmentati
 
     # Define the loss function and optimizer
     criterion = nn.BCELoss()
-    optimizer = optim.AdamW(model.parameters(), lr=lr)
+    optimizer = set_optimiser(model=model, optim=optimiser, learning_rate=lr, weight_decay=wd)
 
     # Train the model
     for i in range(num_epochs):
@@ -80,12 +74,13 @@ if __name__ == '__main__':
     args = parse_args()
     main(
         device=args.device,
-        picture_type=args.picture_type,
         batch_size=args.batch_size,
         lr=args.learning_rate,
         log_wandb=args.wandb,
         num_epochs=args.epochs,       
         augmentation=args.augmentation,
         dropout=args.dropout,
-        version=args.version
+        version=args.version,
+        optimiser=args.optim,
+        wd = args.weight_decay 
     )

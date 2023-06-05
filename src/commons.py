@@ -48,16 +48,21 @@ def load_model(version:str, dropout:float=0.0):
     if version == 'v1':
         from .models.model_v1 import XGCNN
         model = XGCNN(dropout=dropout)
-    elif version == 'v2':
-        from .models.model_v2 import XGCNN
-        model = XGCNN(dropout=dropout)
-    elif version == 'v3':
-        from .models.model_v3 import XGCNN
-        model = XGCNN(dropout=dropout)
-    elif version == 'v4':
-        from .models.model_v4 import XGCNN
-        model = XGCNN(dropout=dropout)
     else:
         raise ValueError(f'Architecture {version} not implemented.')
 
     return model
+
+def set_optimiser(model, optim, learning_rate, weight_decay):
+    if optim.lower() == 'adam': 
+        optimiser = torch.optim.Adam(model.parameters(), lr = learning_rate, weight_decay=weight_decay)  
+    if optim.lower() == 'sparse':
+        optimiser = torch.optim.SparseAdam(model.parameters(), lr = learning_rate, weight_decay = weight_decay)
+    elif optim.lower() == 'adamw':
+        optimiser = torch.optim.AdamW(model.parameters(), lr = learning_rate, weight_decay=weight_decay) 
+    elif optim.lower() == 'sgd':
+        optimiser = torch.optim.SGD(model.parameters(), lr = learning_rate, weight_decay=weight_decay)
+    else:
+        raise ValueError('Specified optimiser not implemented. Should be one of ["adam", "sparseadam", "adamw", "sgd"]')
+
+    return optimiser
