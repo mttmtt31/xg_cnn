@@ -7,11 +7,17 @@ def val(model, val_loader, device, epoch, criterion):
     xGs = []
     outcomes = []
 
+    # initialise parameter to track the training performance
+    log_loss = 0.0
     with torch.no_grad():
-        for images, labels, distance, angle in tqdm(val_loader, total = len(val_loader), desc = f'Validating epoch #{epoch+1}'):
+        for images, labels in tqdm(val_loader, total = len(val_loader), desc = f'Validating epoch #{epoch+1}'):
             # send to device
-            images, labels, distance, angle = images.to(device), labels.to(device), distance.to(device), angle.to(device)
-            outputs = model(images, distance=distance, angle=angle)
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+
+            loss = criterion(outputs.squeeze(), labels.float())
+            # track loss
+            log_loss = log_loss + loss.item()
 
             # append the xG
             xGs.append(outputs.squeeze())
@@ -21,6 +27,6 @@ def val(model, val_loader, device, epoch, criterion):
         xGs = torch.cat(xGs).cpu()
         outcomes = torch.cat(outcomes).cpu()
         roc_auc = roc_auc_score(outcomes, xGs)
-        log_loss = criterion(outcomes, xGs)
+        log_loss = log_loss / len(val_loader)
         
     return roc_auc, log_loss
