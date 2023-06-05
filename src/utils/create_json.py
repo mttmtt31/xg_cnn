@@ -3,6 +3,7 @@ from tqdm import tqdm
 import warnings
 import json
 warnings.filterwarnings("ignore")
+import pandas as pd
 
 # create a json
 shots = {}
@@ -26,6 +27,8 @@ for i, row in tqdm(df_competitions.iterrows(), total = len(df_competitions), des
 
 print('Games have been individuated.')
 
+df_matching = []
+
 # keep track of how many shots
 num_shots = 0
 num_goals = 0
@@ -34,7 +37,7 @@ for match_id in tqdm(all_matches, total = len(all_matches), desc = 'Scanning gam
     # extract all shots
     df_shots = sb.events(match_id, split=True)['shots']
     # isolate open-play shots
-    df_shots = df_shots.loc[(~df_shots['shot_freeze_frame'].isna()) & (df_shots['shot_type'] == 'Open Play'), ['location', 'shot_freeze_frame', 'shot_outcome']].reset_index(drop = True)
+    df_shots = df_shots.loc[(~df_shots['shot_freeze_frame'].isna()) & (df_shots['shot_type'] == 'Open Play'), ['index', 'location', 'shot_freeze_frame', 'shot_outcome']].reset_index(drop = True)
     for _, shot in df_shots.iterrows():
         # create shot dictionary
         shot_dict = {str(index): dictionary for index, dictionary in enumerate(shot['shot_freeze_frame'])}
@@ -46,7 +49,12 @@ for match_id in tqdm(all_matches, total = len(all_matches), desc = 'Scanning gam
         else:
             shot_name = f'non_goals/{num_shots}'
             num_shots = num_shots + 1
+        shot_dict['match_id'] = match_id
+        shot_dict['index'] = shot['index']
         shots[shot_name] = shot_dict
+        df_matching.append([shot_name, match_id, shot['index']])
 
 with open('data/shots.json', 'w') as f:
     json.dump(shots, f)
+
+pd.DataFrame(df_matching, columns = ['shot_name', 'match_id', 'index']).to_csv('data/matching.csv', index = False)
