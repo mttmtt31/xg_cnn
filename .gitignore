@@ -3,6 +3,9 @@ pictures/
 images/
 new_images/
 
+# Exclude zip files
+**.zip
+
 # Exclude compiled Python files
 *.pyc
 *.pyo
