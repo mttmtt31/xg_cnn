@@ -62,21 +62,22 @@ def main(s, plot_angle):
         sc4 = pitch.scatter(gk[:, 0], gk[:, 1], ax=axs, c='green', s=s)
 
         # plot the shot
-        sc3 = pitch.scatter(ball[0], ball[1], c='black', ax=axs, s=s)
+        sc3 = pitch.scatter(ball[0], ball[1], c='black' if plot_angle else 'white', ax=axs, s=s)
 
         # crop to the last 40m
         plt.ylim(80, 120)
 
         # Set the figure size to 80x160 pixels
-        fig.set_size_inches(2, 4) 
+        fig.set_size_inches(2, 1) 
 
         plt.subplots_adjust(left=0, right=1, bottom=0, top=1)
         # save picture with angle
         subfolder = 'angle' if plot_angle else 'white'
-        plt.savefig(f'images/{subfolder}/{shot_name}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
+        plt.tight_layout()
+        plt.savefig(f'images/{subfolder}/{shot_name}.png', dpi=80, pad_inches=0, facecolor = 'black')
         plt.close() 
 
 if __name__ == '__main__':
     args = parse_args()
-    main(s=args.s, angle=args.angle)
+    main(s=args.s, plot_angle=args.angle)
     
