@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('--voronoi', action='store_true')
     parser.add_argument('--cones', action='store_true')
     parser.add_argument('--angle', action='store_true')
+    parser.add_argument('--save', action='store_true')
     
     return parser.parse_args()
 
@@ -43,7 +44,7 @@ def crop_image(ball, teammates, opponents, gk):
 
     return min(teammates_min, opponents_min, gk_min, ball_min)
 
-def main(s, plot_voronoi, plot_cones, plot_angle):
+def main(s, plot_voronoi, plot_cones, plot_angle, save):
     with open('data/shots.json', 'rb') as f:
         dict_shots = json.load(f) 
     for shot_name, shot in tqdm(dict_shots.items(), total = len(dict_shots), desc = 'Saving shot frames.......'):
@@ -53,11 +54,11 @@ def main(s, plot_voronoi, plot_cones, plot_angle):
         shot_dist = compute_distance(ball)
         shot_angle = compute_angle(ball)
         # isolate teammates location
-        teammates = np.array([player['location'] for key, player in shot.items() if key not in ['ball', 'outcome'] and player['teammate']]).reshape(-1, 2)
+        teammates = np.array([player['location'] for key, player in shot.items() if key not in ['ball', 'outcome', 'match_id', 'index'] and player['teammate']]).reshape(-1, 2)
         # isolate opponents location
-        opponents = np.array([player['location'] for key, player in shot.items() if key not in ['ball', 'outcome'] and not player['teammate'] and player['position']['name'] != 'Goalkeeper']).reshape(-1, 2)
+        opponents = np.array([player['location'] for key, player in shot.items() if key not in ['ball', 'outcome', 'match_id', 'index'] and not player['teammate'] and player['position']['name'] != 'Goalkeeper']).reshape(-1, 2)
         # isolate gk location
-        gk = np.array([player['location'] for key, player in shot.items() if key not in ['ball', 'outcome'] and not player['teammate'] and player['position']['name'] == 'Goalkeeper']).reshape(-1, 2)
+        gk = np.array([player['location'] for key, player in shot.items() if key not in ['ball', 'outcome', 'match_id', 'index'] and not player['teammate'] and player['position']['name'] == 'Goalkeeper']).reshape(-1, 2)
         # put everything in a single dataframe with a column team which is a boolean for teammate or not. only for voronoi
         if plot_voronoi:
             opponents_gk = np.concatenate([opponents, gk])
@@ -125,28 +126,29 @@ def main(s, plot_voronoi, plot_cones, plot_angle):
         # Save the plot as a PNG image
         plt.subplots_adjust(left=0, right=1, bottom=0, top=1)
         # check if you need to plot voronoi for this goals
-        if plot_voronoi:
-            # save picture with all voronoi
-            plt.savefig(f'new_images/all/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
-            # make the same picture but with only visible
-            visible = pitch.polygon([np.array([[0,80.],[df_players[0].min() - 10,  80.], [df_players[0].min() - 10,  0], [0,0]])], color='white', ax=axs)
-            plt.savefig(f'new_images/visible/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
-        elif plot_cones and plot_angle:
-            # save picture with cones and angles
-            plt.gca().set_aspect('equal')
-            # Save the plot as a PNG image
-            plt.savefig(f"new_images/cones+angle/{shot_name}_{shot_dist}_{shot_angle}.png", dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')            
-        elif plot_cones:
-            # Set the aspect ratio to 'equal' for circular circles
-            plt.gca().set_aspect('equal')
-            # Save the plot as a PNG image
-            plt.savefig(f"new_images/cones/{shot_name}_{shot_dist}_{shot_angle}.png", dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
-        elif plot_angle:
-            # save picture with angle
-            plt.savefig(f'new_images/angle/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
-        else:
-            # save picture with white background
-            plt.savefig(f'new_images/white/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
+        if save:
+            if plot_voronoi:
+                # save picture with all voronoi
+                plt.savefig(f'new_images/all/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
+                # make the same picture but with only visible
+                visible = pitch.polygon([np.array([[0,80.],[df_players[0].min() - 10,  80.], [df_players[0].min() - 10,  0], [0,0]])], color='white', ax=axs)
+                plt.savefig(f'new_images/visible/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
+            elif plot_cones and plot_angle:
+                # save picture with cones and angles
+                plt.gca().set_aspect('equal')
+                # Save the plot as a PNG image
+                plt.savefig(f"new_images/cones+angle/{shot_name}_{shot_dist}_{shot_angle}.png", dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')            
+            elif plot_cones:
+                # Set the aspect ratio to 'equal' for circular circles
+                plt.gca().set_aspect('equal')
+                # Save the plot as a PNG image
+                plt.savefig(f"new_images/cones/{shot_name}_{shot_dist}_{shot_angle}.png", dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
+            elif plot_angle:
+                # save picture with angle
+                plt.savefig(f'new_images/angle/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
+            else:
+                # save picture with white background
+                plt.savefig(f'new_images/white/{shot_name}_{shot_dist}_{shot_angle}.png', dpi=80, bbox_inches='tight', pad_inches=0, facecolor = 'black')
         # close the picture
         plt.close() 
 
@@ -154,5 +156,5 @@ if __name__ == '__main__':
     args = parse_args()
     if args.voronoi and (args.cones or args.angle):
         raise ValueError("Voronoi diagrams can only be plotted by themselves, without angles or cones.")
-    main(s=args.s, plot_voronoi=args.voronoi, plot_cones=args.cones, plot_angle=args.angle)
+    main(s=args.s, plot_voronoi=args.voronoi, plot_cones=args.cones, plot_angle=args.angle, save=args.save)
     
