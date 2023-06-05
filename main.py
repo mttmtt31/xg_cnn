@@ -8,7 +8,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda')
     parser.add_argument('--batch-size', type = int, default = 64)
-    parser.add_argument('--learning-rate', type = float, default = 0.001)
+    parser.add_argument('--learning-rate', type = float, default = 0.01)
     parser.add_argument('--dropout', type = float, default = 0.0)
     parser.add_argument('--epochs', type = int, default = 10)
     parser.add_argument('--version', type = str, default = 'v1')
