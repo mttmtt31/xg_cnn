@@ -2,11 +2,11 @@ import torch.nn as nn
 
 # Define the CNN model
 class XGCNN(nn.Module):
-    def __init__(self, dropout:float=0.0):
+    def __init__(self, in_channels:int=3, dropout:float=0.0):
         super(XGCNN, self).__init__()
         # 80x160
         self.conv_layer_1 = nn.Sequential(
-            nn.Conv2d(in_channels = 3, out_channels = 16, kernel_size = (5, 5)),
+            nn.Conv2d(in_channels = in_channels, out_channels = 16, kernel_size = (5, 5)),
             nn.BatchNorm2d(num_features = 16),
             nn.ReLU()
         ) #16 x 76 x 156

@@ -16,10 +16,11 @@ def parse_args():
     parser.add_argument('--wandb', action='store_true', help = 'Whether you want to log results in wandb')
     parser.add_argument('--optim', type = str, default = 'adam', help = 'Optimiser to use')
     parser.add_argument('--weight-decay', type = float, default = 0.0, help = 'Weight decay')
+    parser.add_argument('--angle', action = 'store_true', default = 'Whether to consider a channel for the shot angle')
 
     return parser.parse_args()
 
-def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, dropout, version, optimiser, wd):
+def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dropout, version, optimiser, wd):
     if log_wandb:
         # start a new wandb run to track this script
         wandb.init(
@@ -32,17 +33,19 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, dropout, v
             "epochs": num_epochs,
             "batch_size" : batch_size, 
             "learning_rate" : lr, 
-            "num_epochs" : num_epochs, 
+            "angle" : angle,
             "dropout" : dropout,
             "version" : version,
-            "augmentation" : augmentation
+            "augmentation" : augmentation,
+            "optimiser" : optimiser,
+            "weight_decay" : wd
             }
         )
 
     data_path = 'data/shots.npy'
     labels_path = 'data/labels.npy'
     # Load the dataset
-    dataset = FreezeFrameDataset(data_path=data_path, labels_path=labels_path, augmentation=augmentation)
+    dataset = FreezeFrameDataset(data_path=data_path, labels_path=labels_path, angle=angle, augmentation=augmentation)
 
     # Split train/val dataset
     train_dataset, val_dataset = train_val_split(dataset=dataset, train_size=0.8)
@@ -52,7 +55,7 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, dropout, v
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize the model
-    model = load_model(version=version, dropout=dropout)
+    model = load_model(version=version, dropout=dropout, in_channels=3 if angle else 2)
     model.to(device)
 
     # Define the loss function and optimizer
@@ -82,5 +85,6 @@ if __name__ == '__main__':
         dropout=args.dropout,
         version=args.version,
         optimiser=args.optim,
-        wd = args.weight_decay 
+        wd = args.weight_decay,
+        angle = args.angle
     )

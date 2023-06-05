@@ -4,9 +4,9 @@ import numpy as np
 
     
 class FreezeFrameDataset(Dataset):
-    def __init__(self, data_path, labels_path, augmentation=None):
+    def __init__(self, data_path, labels_path, angle, augmentation=None):
         # load the numpy arrays
-        data = np.load(data_path)
+        data = np.load(data_path)[int(not angle):, :, :]
         labels = np.load(labels_path)
         # turn them into tensors
         self.data = torch.from_numpy(data).float()

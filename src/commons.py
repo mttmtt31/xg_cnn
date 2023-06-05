@@ -35,7 +35,7 @@ def normalise_angle(dataset):
 
     return normalise
 
-def load_model(version:str, dropout:float=0.0):
+def load_model(version:str, in_channels:int=3, dropout:float=0.0):
     """Load the correct model based on the user's input.
     If path is specified, load a pretrained model.
 
@@ -47,7 +47,7 @@ def load_model(version:str, dropout:float=0.0):
     """
     if version == 'v1':
         from .models.model_v1 import XGCNN
-        model = XGCNN(dropout=dropout)
+        model = XGCNN(dropout=dropout, in_channels=in_channels)
     else:
         raise ValueError(f'Architecture {version} not implemented.')
 
