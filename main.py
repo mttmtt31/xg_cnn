@@ -43,7 +43,7 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
     criterion = nn.BCELoss()
     optimizer = set_optimiser(model=model, optim=optimiser, learning_rate=lr, weight_decay=wd)
 
-    for _ in n_runs:
+    for _ in range(n_runs):
         # log in wandb
         if log_wandb:
             # start a new wandb run to track this script
