@@ -23,8 +23,8 @@ def parse_args():
 
 def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dropout, version, optimiser, wd, n_runs):
 
-    data_path = 'data/shots.npy'
-    labels_path = 'data/labels.npy'
+    data_path = 'tensors/shots.npy'
+    labels_path = 'tensors/labels.npy'
     # Load the dataset
     dataset = FreezeFrameDataset(data_path=data_path, labels_path=labels_path, angle=angle, augmentation=augmentation)
 
