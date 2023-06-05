@@ -1,6 +1,8 @@
 import random
 from torch.utils.data import Subset
 import torch
+from torchvision import transforms
+from .dataset import TensorDataset, PictureDataset
 
 def train_val_split(dataset, train_size:float=0.8):
     # Perform train/val split (on the original set)
@@ -52,6 +54,27 @@ def load_model(version:str, in_channels:int=3, dropout:float=0.0):
         raise ValueError(f'Architecture {version} not implemented.')
 
     return model
+
+def load_tensor_dataset(angle, augmentation):
+    data_path = 'tensors/shots.npy'
+    labels_path = 'tensors/labels.npy'
+    # Load the dataset
+    return TensorDataset(data_path=data_path, labels_path=labels_path, angle=angle, augmentation=augmentation)
+
+
+def load_picture_dataset(angle, augmentation):
+    picture_type = 'angle' if angle else 'white'
+    folder_path = f'images/{picture_type}'
+    # Load the dataset
+    return PictureDataset(folder_path, transform=transforms.ToTensor(), augmentation=augmentation)
+
+def load_dataset(input_type, angle, augmentation):
+    if input_type == 'tensor':
+        dataset = load_tensor_dataset(angle, augmentation)
+    else:
+        dataset = load_picture_dataset(angle, augmentation)
+
+    return dataset
 
 def set_optimiser(model, optim, learning_rate, weight_decay):
     if optim.lower() == 'adam': 
