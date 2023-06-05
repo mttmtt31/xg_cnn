@@ -1,5 +1,6 @@
 import random
 from torch.utils.data import Subset
+import torch
 
 def train_val_split(dataset, train_size:float=0.8):
     # Perform train/val split (on the original set)
@@ -20,6 +21,20 @@ def train_val_split(dataset, train_size:float=0.8):
 
     return train_dataset, val_dataset
 
+def normalise_distance(dataset):
+    dist_min = torch.tensor([distance for _, _, distance, _ in dataset]).min()
+    dist_max = torch.tensor([distance for _, _, distance, _ in dataset]).max()
+    normalise = lambda x: (x - dist_min) / (dist_max - dist_min)
+
+    return normalise
+
+def normalise_angle(dataset):
+    angle_min = torch.tensor([angle for _, _, _, angle in dataset]).min()
+    angle_max = torch.tensor([angle for _, _, _, angle in dataset]).max()
+    normalise = lambda x: (x - angle_min) / (angle_max - angle_min)
+
+    return normalise
+
 def load_model(version:str, dropout:float=0.0):
     """Load the correct model based on the user's input.
     If path is specified, load a pretrained model.
@@ -38,6 +53,9 @@ def load_model(version:str, dropout:float=0.0):
         model = XGCNN(dropout=dropout)
     elif version == 'v3':
         from .models.model_v3 import XGCNN
+        model = XGCNN(dropout=dropout)
+    elif version == 'v4':
+        from .models.model_v4 import XGCNN
         model = XGCNN(dropout=dropout)
     else:
         raise ValueError(f'Architecture {version} not implemented.')
