@@ -75,6 +75,8 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
             if log_wandb:
                 wandb.log({"Train Loss": train_loss, "Validation ROC-AUC score:" : roc_score, "Validation loss" : log_loss})
 
+        wandb.finish()
+
 if __name__ == '__main__':
     args = parse_args()
     main(
