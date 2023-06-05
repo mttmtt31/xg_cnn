@@ -56,13 +56,11 @@ def load_model(version:str, dropout:float=0.0):
 def set_optimiser(model, optim, learning_rate, weight_decay):
     if optim.lower() == 'adam': 
         optimiser = torch.optim.Adam(model.parameters(), lr = learning_rate, weight_decay=weight_decay)  
-    if optim.lower() == 'sparse':
-        optimiser = torch.optim.SparseAdam(model.parameters(), lr = learning_rate, weight_decay = weight_decay)
     elif optim.lower() == 'adamw':
         optimiser = torch.optim.AdamW(model.parameters(), lr = learning_rate, weight_decay=weight_decay) 
     elif optim.lower() == 'sgd':
         optimiser = torch.optim.SGD(model.parameters(), lr = learning_rate, weight_decay=weight_decay)
     else:
-        raise ValueError('Specified optimiser not implemented. Should be one of ["adam", "sparseadam", "adamw", "sgd"]')
+        raise ValueError(f'Specified optimiser {optim} not implemented. Should be one of ["adam", "adamw", "sgd"]')
 
     return optimiser
