@@ -7,14 +7,14 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda')
-    parser.add_argument('--batch-size', type = int, default = 32)
+    parser.add_argument('--batch-size', type = int, default = 64)
     parser.add_argument('--learning-rate', type = float, default = 0.001)
     parser.add_argument('--dropout', type = float, default = 0.0)
     parser.add_argument('--epochs', type = int, default = 10)
     parser.add_argument('--version', type = str, default = 'v1')
     parser.add_argument('--augmentation', action='store_true', help = 'Whether you want to perform data augmentation')
     parser.add_argument('--wandb', action='store_true', help = 'Whether you want to log results in wandb')
-    parser.add_argument('--optim', type = str, default = 'sgd', help = 'Optimiser to use')
+    parser.add_argument('--optim', type = str, default = 'adam', help = 'Optimiser to use')
     parser.add_argument('--weight-decay', type = float, default = 0.0, help = 'Weight decay')
 
     return parser.parse_args()
