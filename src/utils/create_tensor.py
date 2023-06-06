@@ -48,7 +48,7 @@ for shot_name, shot in tqdm(dict_shots.items(), total = len(dict_shots)):
     coords = set(full_triangle(shot['ball']))
     arr = np.array(rg.render_at((240, 160), coords))
     arr = np.expand_dims(arr, axis = 0)
-    shot_frame = np.concatenate((frame_array, arr), axis=0)[:, -40:, :]
+    shot_frame = np.concatenate((frame_array, arr), axis=0)[:, -80:, :]
     all_shots.append(shot_frame)
     labels.append(0 if shot_name.startswith('n') else 1)
 
