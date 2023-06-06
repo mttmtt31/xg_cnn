@@ -36,7 +36,7 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize the model
-    model = load_model(version=version, dropout=dropout, in_channels=3 if angle else 2)
+    model = load_model(version=version, dropout=dropout, in_channels=2 if not angle and not picture else 3)
     model.to(device)
 
     # Define the loss function and optimizer
