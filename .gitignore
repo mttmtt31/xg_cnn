@@ -22,6 +22,7 @@ env/
 logs/
 log/
 *.log
+**.out
 
 # Exclude generated documentation
 doc/
