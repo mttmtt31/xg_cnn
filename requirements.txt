@@ -8,3 +8,4 @@ statsbombpy
 torch
 torchvision
 tqdm
+gdown
