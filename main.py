@@ -75,6 +75,9 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
 
             if log_wandb:
                 wandb.log({"Train Loss": train_loss, "Validation ROC-AUC score:" : roc_score, "Validation loss" : log_loss})
+            else:
+                print(f'Epoch {i + 1}')
+                print({"Train Loss": train_loss, "Validation ROC-AUC score:" : roc_score, "Validation loss" : log_loss})
 
         wandb.finish()
 
