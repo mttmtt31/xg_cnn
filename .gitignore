@@ -7,6 +7,7 @@ new_images/
 # Exclude specific file formats
 **.zip
 **.npy
+**.ipynb
 
 # Exclude compiled Python files
 *.pyc

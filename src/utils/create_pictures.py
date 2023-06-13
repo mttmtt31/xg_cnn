@@ -12,7 +12,6 @@ warnings.filterwarnings("ignore")
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--s', type=int, default=1)  
-    parser.add_argument('--angle', action = 'store_true', help = 'If specified, plot the goal angle in transparency')  
     return parser.parse_args()
 
 def area(x1, y1, x2, y2, x3, y3):
@@ -32,7 +31,7 @@ def is_point_inside_triangle(ball, px, py):
     else:
         return False
 
-def main(s, plot_angle):
+def main(s):
     with open('data/shots.json', 'rb') as f:
         dict_shots = json.load(f) 
     for shot_name, shot in tqdm(dict_shots.items(), total = len(dict_shots), desc = 'Saving shot frames.......'):
@@ -53,8 +52,7 @@ def main(s, plot_angle):
         fig, axs = pitch.draw()
 
         # plot the angle to the goal
-        if plot_angle:
-            pitch.goal_angle(ball[0], ball[1], ax=axs, alpha=0.2, color='#cb5a4c', goal='right')
+        pitch.goal_angle(ball[0], ball[1], ax=axs, alpha=0.2, color='#cb5a4c', goal='right')
 
         # Plot the players
         sc1 = pitch.scatter(teammates[:, 0], teammates[:, 1], c='red', label='Attacker',  ax=axs, s=s)
@@ -62,7 +60,7 @@ def main(s, plot_angle):
         sc4 = pitch.scatter(gk[:, 0], gk[:, 1], ax=axs, c='green', s=s)
 
         # plot the shot
-        sc3 = pitch.scatter(ball[0], ball[1], c='black' if plot_angle else 'white', ax=axs, s=s)
+        sc3 = pitch.scatter(ball[0], ball[1], c='black', ax=axs, s=s)
 
         # crop to the last 40m
         plt.ylim(80, 120)
@@ -72,12 +70,12 @@ def main(s, plot_angle):
 
         plt.subplots_adjust(left=0, right=1, bottom=0, top=1)
         # save picture with angle
-        subfolder = 'angle' if plot_angle else 'white'
+        subfolder = 'angle'
         plt.tight_layout()
         plt.savefig(f'images/{subfolder}/{shot_name}.png', dpi=80, pad_inches=0, facecolor = 'black')
         plt.close() 
 
 if __name__ == '__main__':
     args = parse_args()
-    main(s=args.s, plot_angle=args.angle)
+    main(s=args.s)
     
