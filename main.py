@@ -16,17 +16,15 @@ def parse_args():
     parser.add_argument('--wandb', action='store_true', help = 'Whether you want to log results in wandb')
     parser.add_argument('--optim', type = str, default = 'adam', help = 'Optimiser to use')
     parser.add_argument('--weight-decay', type = float, default = 0.0, help = 'Weight decay')
-    parser.add_argument('--angle', action = 'store_true', help = 'Whether to consider a channel for the shot angle')
     parser.add_argument('--n-runs', type = int, default = 1, help = 'How many runs')
     parser.add_argument('--picture', action = 'store_true', help = 'If specified, consider the .png files instead of tensors')
 
-
     return parser.parse_args()
 
-def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dropout, version, optimiser, wd, n_runs, picture):
+def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, dropout, version, optimiser, wd, n_runs, picture):
     # Load the dataset
     dataset = load_dataset(input_type='picture' if picture else 'tensor',
-                           angle=angle,
+                           angle=True,
                            augmentation=augmentation)
     # Split train/val dataset
     train_dataset, val_dataset = train_val_split(dataset=dataset, train_size=0.8)
@@ -36,7 +34,7 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize the model
-    model = load_model(version=version, dropout=dropout, in_channels=2 if not angle and not picture else 3)
+    model = load_model(version=version, dropout=dropout, in_channels=3)
     model.to(device)
 
     # Define the loss function and optimizer
@@ -57,7 +55,7 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
                 "epochs": num_epochs,
                 "batch_size" : batch_size, 
                 "learning_rate" : lr, 
-                "angle" : angle,
+                "angle" : True,
                 "dropout" : dropout,
                 "version" : version,
                 "augmentation" : augmentation,
@@ -94,7 +92,6 @@ if __name__ == '__main__':
         version=args.version,
         optimiser=args.optim,
         wd = args.weight_decay,
-        angle = args.angle,
         n_runs = args.n_runs,
         picture=args.picture
     )
