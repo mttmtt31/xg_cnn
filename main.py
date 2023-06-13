@@ -62,7 +62,8 @@ def main(device, batch_size, lr, num_epochs, log_wandb, augmentation, angle, dro
                 "version" : version,
                 "augmentation" : augmentation,
                 "optimiser" : optimiser,
-                "weight_decay" : wd
+                "weight_decay" : wd,
+                "picture" : picture
                 }
             )
         # Train the model
