@@ -1,12 +1,14 @@
 # xG-CNN
+This repository allows you to fully reproduce the results of our research we submitted to the 10th Workshop on Machine Learning and Data Mining for Sports Analytics (Turin, 2023).
 
+You can train the model yourself either re-creating the input from scratch, or using a provided input.
 
 ## Installation
 
 1. Clone the repository:
 
    ```shell
-   git clone https://github.com/your-username/project.git
+   git clone https://github.com/mttmtt31/xg_cnn.git
 
 2. Install the packages
    ```shell
@@ -14,41 +16,59 @@
    pip install -r requirements.txt
 
 ## (Optional) Individuate shots
-1. To fully reproduce our results and retrieve the shots' json file already located in the `data/shots.json`, you can run the `create_json.py` script located in the `src/utils` directory. 
+1. To fully reproduce our results and retrieve the shots' json file already located in the `data/shots.json`, you can run the `create_json.py` script located in the `src/utils` directory. This command simply creates a json file which is looked up when representing the shot frame without invoking the API each time.
+  
    ```shell
    python src/utils/create_json.py
    ```
 
-## Shot frames generation
+## (Optional) Shot frames generation
+Each shot can be represented in two ways: as a tensor or as a picture in `.png` format. Either way, the input can also be downloaded.
 1. Run the `create_pictures.py` script located in the `src/utils` directory. 
    ```shell
-   python src/utils/create_pictures.py --s <size> [--voronoi] [--cones]
+   python src/utils/create_pictures.py --s
    ```
 
-    --**s**: Specify the size of the scatter plots. In our implementation, `s=2` when `--cones`, otherwise always `s=5`.  
+    --**s**: Specifies the size of the scatter plots. In our implementation, `s=1`.
 
-    --**voronoi**: (Optional) Generate scatter plots with Voronoi diagrams as background. Will generate two types of pictures, one with the Voronoi diagram defined on the whole pitch and one with the Voronoi diagram defined only in the visible frame. The pictures will be store in the subfolders `images/all` and `images/visible`, respectively.
-    
-    --**cones**: (Optional) Generate scatter plots with cones around each player. The cones represent the shadow of a player with respect to the ball. If specified, the images will be store in the subfolder `images/cones`. 
+2. Run the `create_tensor.py` script located in the `src/utils` directory. 
+   ```shell
+   python src/utils/create_tensor.py
+   ``` 
+If you created the input files, you can skip the following section and go directly to the **Train the model** section. 
 
-    If neither --**voronoi** nor --**cones** is specified, the scatter plots will be plotted on a white background with no additional feature in the `images/white/` directory.
-
-    A preview of the pictures can be found in the `sample_images` folder. 
+## Download data
+To download data, run the following bash script.
+```
+$ bash download.sh
+```
 
 ## Train the model
 1. Run the `main.py` script:
    ```shell
-   python main.py --device <device> --batch-size <batch_size> --learning-rate <lr> --epochs <epochs> --picture_type <picture_type> [--log-wandb]
+   python main.py --device --batch-size --learning-rate --dropout  --epochs --version --augmentation --picture --optim --weight-decay --n-runs --wandb
    ```
 
-    **--device**: Specify the device for training
+    **--device**: Specifies the device for training
 
-    **--batch-size**: Specify the batch size for training.
+    **--batch-size**: Specifies the batch size for training.
 
-    **--learning-rate**: Specify the learning rate. 
+    **--learning-rate**: Specifies the learning rate. 
 
-    **--epochs**: Specify the number of epochs for training.
+   **--dropout**: Specifies the dropout in the fully connected layer. 
 
-    **--picture-type**: Specify the type of pictures to use (all, cones, visible, white).
+   **--epochs**: Specifies the number of epochs for training.
 
-    **-wandb**: (Optional) Log results in Weights & Biases (wandb). When logging in wandb, please make sure wandb is currectly configured on your devie.
+   **--version**: Architecture to use. At the moment, only possible choice is 'v1', *i.e.*, the only implemented architecture.
+
+   **--augmentation**: If specified, performs augmentation as described in the paper.
+
+   **--picture**: If specified, pictures are used (instead of tensors).
+
+   **--optim** : Specifies the optimiser to use.
+
+   **--weight-decay** : Specifies the weight decay.
+
+   **--n-runs** : Specifies how many times each training run is repeated (in order to obtain more reliable results).
+
+   **-wandb**: If specified, logs results in Weights & Biases (wandb). When logging in wandb, please make sure wandb is currectly configured on your devie.
