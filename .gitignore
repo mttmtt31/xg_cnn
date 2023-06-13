@@ -2,9 +2,11 @@
 pictures/
 images/
 new_images/
+**.png
 
-# Exclude zip files
+# Exclude specific file formats
 **.zip
+**.npy
 
 # Exclude compiled Python files
 *.pyc
@@ -20,6 +22,7 @@ env/
 logs/
 log/
 *.log
+**.out
 
 # Exclude generated documentation
 doc/
