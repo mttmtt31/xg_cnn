@@ -3,7 +3,7 @@ mplsoccer
 numpy
 pandas
 raster_geometry
-scikit_learn
+sklearn
 statsbombpy
 torch
 torchvision
