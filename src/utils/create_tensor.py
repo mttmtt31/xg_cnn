@@ -7,9 +7,13 @@ import math
 from tqdm import tqdm
 
 def area(x1, y1, x2, y2, x3, y3):
+    """Compute the area of the triangle described by 3 points [(x1,y1), (x2,y2), (x3,y3)]
+    """
     return abs((x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2)
 
 def full_triangle(a):
+    """Find the perimeter of a triangle
+    """
     a = [min(max_coord, math.floor(coord * 2)) for coord, max_coord in zip(a, [239, 159])]
     b = (239, 71)
     c = (239, 87)
@@ -18,6 +22,8 @@ def full_triangle(a):
         yield from rg.bresenham_line(c, x, endpoint=True)
 
 def is_point_inside_triangle(ball, px, py):
+    """Check if a point is inside the triangle described by the ball and the two posts
+    """
     x1, y1 = ball
     x2, y2 = 120, 36
     x3, y3 = 120, 44
@@ -42,9 +48,11 @@ for shot_name, shot in tqdm(dict_shots.items(), total = len(dict_shots)):
     frame_array = np.zeros((2, 240, 160))
     # find the players
     players = {k:v for k, v in shot.items() if k.isdigit() and is_point_inside_triangle(shot['ball'], v['location'][0], v['location'][1])}
+    # put the opponents in the first channel and the teammates in the second channel
     for _, player in players.items(): 
         frame_array[int(player['teammate']), min(239, math.floor(player['location'][0] * 2)), min(159, math.floor(player['location'][1] * 2))] += 1
 
+    # draw the triangle in the first channel and shift all other channels
     coords = set(full_triangle(shot['ball']))
     arr = np.array(rg.render_at((240, 160), coords))
     arr = np.expand_dims(arr, axis = 0)
