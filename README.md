@@ -23,7 +23,7 @@ You can train the model yourself either re-creating the input from scratch, or u
    ```
 
 ## (Optional) Shot frames generation
-Each shot can be represented in two ways: as a tensor or as a picture in `.png` format. Either way, the input can also be downloaded.
+Each shot can be represented in two ways: as a tensor or as a picture in `.png` format. Either way, the input can also be downloaded directly from Google Drive (see next section), saving a lot of time.
 1. Run the `create_pictures.py` script located in the `src/utils` directory. 
    ```shell
    python src/utils/create_pictures.py --s
